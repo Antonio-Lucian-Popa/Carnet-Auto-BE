@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String            @id @default(uuid())
+  email     String            @unique
+  password  String? // null dacă vine de la Google
+  googleId  String?           @unique
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  cars      Car[]
+  fuelLogs  FuelLog[] // ✅ Adăugat pentru relație corectă
+  plan      SubscriptionPlan? @relation(fields: [planId], references: [id])
+  planId    String?
+}
+
+model Car {
+  id          String      @id @default(uuid())
+  user        User        @relation(fields: [userId], references: [id])
+  userId      String
+  name        String
+  model       String
+  year        Int
+  numberPlate String
+  vin         String?
+  createdAt   DateTime    @default(now())
+  fuelLogs    FuelLog[]
+  repairLogs  RepairLog[]
+  reminders   Reminder[]
+}
+
+model FuelLog {
+  id       String   @id @default(uuid())
+  car      Car      @relation(fields: [carId], references: [id])
+  carId    String
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String
+  date     DateTime @default(now())
+  odometer Int
+  liters   Float
+  price    Float
+  station  String?
+}
+
+model RepairLog {
+  id          String   @id @default(uuid())
+  car         Car      @relation(fields: [carId], references: [id])
+  carId       String
+  date        DateTime @default(now())
+  description String
+  cost        Float
+  service     String?
+}
+
+enum ReminderType {
+  ITP
+  RCA
+  ULEI
+  REVIZIE
+}
+
+model Reminder {
+  id         String       @id @default(uuid())
+  car        Car          @relation(fields: [carId], references: [id])
+  carId      String
+  type       ReminderType
+  dueDate    DateTime
+  repeatDays Int?
+  notified   Boolean      @default(false)
+}
+
+enum SubscriptionType {
+  FREE
+  PRO
+  FLEET
+}
+
+model SubscriptionPlan {
+  id    String  @id @default(uuid())
+  name  String // free, pro, fleet
+  price Decimal @db.Decimal(10, 2)
+  users User[]
+}
