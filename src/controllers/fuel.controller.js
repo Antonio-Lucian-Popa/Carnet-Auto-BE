@@ -44,6 +44,24 @@ exports.getFuelLogs = async (req, res) => {
   }
 };
 
+exports.getAllFuelLogs = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const logs = await prisma.fuelLog.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        date: "desc",
+      },
+    });
+    res.json(logs);
+  } catch (error) {
+    console.error("Error fetching all fuel logs:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 exports.deleteFuelLog = async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
