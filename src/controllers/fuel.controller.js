@@ -1,6 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const jwt = require("jsonwebtoken");
+
 const JWT_SECRET = process.env.JWT_SECRET || "jwtsecret123";
 
 exports.createFuelLog = async (req, res) => {
@@ -97,15 +99,15 @@ exports.deleteFuelLog = async (req, res) => {
 };
 
 
-getCurrentUser = (authHeader) => {
+const getCurrentUser = (authHeader) => {
   const token = authHeader && authHeader.split(" ")[1];
+  if (!token) throw new Error("Token missing");
+
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-
-    return decoded.userId;
-
+    return decoded.id || decoded.userId; // Depinde cum ai generat token-ul
   } catch (error) {
     console.error("getCurrentUser error:", error);
-    return new Error("Token invalid sau expirat.");
+    throw new Error("Token invalid sau expirat.");
   }
 };
