@@ -3,6 +3,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const session = require("express-session");
 const passport = require("passport");
+require("./config/passport");
 require("dotenv").config();
 
 const authRoutes = require("./routes/auth.routes");
