@@ -46,13 +46,50 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Parolă greșită." });
     }
 
-    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, {
-      expiresIn: "2d",
-    });
+    const accessToken = jwt.sign(
+      { userId: user.id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: "15m" } // scurt, pentru acces
+    );
 
-    res.json({ token });
+    const refreshToken = jwt.sign(
+      { userId: user.id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: "7d" } // mai lung
+    );
+
+    const expiresAt = Math.floor(Date.now() / 1000) + 15 * 60; // Unix time in sec
+
+    res.json({
+      accessToken,
+      refreshToken,
+      expiresAt,
+    });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Eroare internă." });
+  }
+};
+
+
+exports.refreshToken = async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) return res.status(400).json({ message: "Refresh token lipsă." });
+
+  try {
+    const decoded = jwt.verify(refreshToken, JWT_SECRET);
+
+    const newAccessToken = jwt.sign(
+      { userId: decoded.userId, email: decoded.email },
+      JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    const expiresAt = Math.floor(Date.now() / 1000) + 15 * 60;
+
+    res.json({ accessToken: newAccessToken, expiresAt });
+  } catch (error) {
+    return res.status(403).json({ message: "Refresh token invalid sau expirat." });
   }
 };
