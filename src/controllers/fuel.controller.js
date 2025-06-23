@@ -1,19 +1,29 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const JWT_SECRET = process.env.JWT_SECRET || "jwtsecret123";
+
 exports.createFuelLog = async (req, res) => {
   const { carId, odometer, liters, price, station } = req.body;
-  const userId = req.user.id;
+  const authHeader = req.headers["authorization"];
+  const userId = getCurrentUser(authHeader);
+  console.log("Creating fuel log for user:", userId, "carId:", carId);
 
   try {
     const fuelLog = await prisma.fuelLog.create({
       data: {
-        carId,
-        userId,
+       user: {
+        connect: { id: userId },
+      },
         odometer,
         liters,
         price,
         station,
+        car: {
+          connect: {
+            id: carId
+          }
+        }
       },
     });
     res.status(201).json(fuelLog);
@@ -83,5 +93,19 @@ exports.deleteFuelLog = async (req, res) => {
   } catch (error) {
     console.error("Error deleting fuel log:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+getCurrentUser = (authHeader) => {
+  const token = authHeader && authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    return decoded.userId;
+
+  } catch (error) {
+    console.error("getCurrentUser error:", error);
+    return new Error("Token invalid sau expirat.");
   }
 };
