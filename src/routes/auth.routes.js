@@ -26,6 +26,7 @@ router.get(
   }
 );
 
+router.get("/me", authController.getCurrentUser);
 // În viitor: Google Auth
 // router.get("/google", passport.authenticate(...))
 

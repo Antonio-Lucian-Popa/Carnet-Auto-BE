@@ -93,3 +93,35 @@ exports.refreshToken = async (req, res) => {
     return res.status(403).json({ message: "Refresh token invalid sau expirat." });
   }
 };
+
+exports.getCurrentUser = async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "Token lipsă" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        email: true,
+        createdAt: true,
+        // poți adăuga mai multe câmpuri dacă ai nevoie
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilizatorul nu a fost găsit." });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error("getCurrentUser error:", error);
+    return res.status(403).json({ message: "Token invalid sau expirat." });
+  }
+};
