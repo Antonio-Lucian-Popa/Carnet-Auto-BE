@@ -125,3 +125,30 @@ exports.getCurrentUser = async (req, res) => {
     return res.status(403).json({ message: "Token invalid sau expirat." });
   }
 };
+
+exports.deleteAccount = async (req, res) => {
+  const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) {
+        return res.status(401).json({ message: "Token lipsă" });
+    }
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        // Șterge toate datele asociate cu utilizatorul
+        await prisma.reminder.deleteMany({ where: { userId } });
+        await prisma.repairLog.deleteMany({ where: { userId } });
+        await prisma.fuelLog.deleteMany({ where: { userId } });
+        await prisma.car.deleteMany({ where: { userId } });
+
+        // Șterge utilizatorul
+        await prisma.user.delete({ where: { id: userId } });
+
+        res.json({ message: "Cont șters cu succes." });
+    }
+    catch (error) {
+        console.error("Delete account error:", error);
+        res.status(500).json({ message: "Eroare internă." });
+    }
+}
