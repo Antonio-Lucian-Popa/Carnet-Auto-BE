@@ -14,4 +14,7 @@ router.get("/:carId", repairController.getRepairLogs);
 // Șterge un log de reparație
 router.delete("/:id", repairController.deleteRepairLog);
 
+// Obține toate reparațiile pentru utilizator
+router.get("/all", repairController.getAllRepairLogs);
+
 module.exports = router;

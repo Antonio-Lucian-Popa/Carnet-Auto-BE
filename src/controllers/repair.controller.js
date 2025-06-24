@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const { getCurrentUser } = require("../utils/auth.util");
 
 exports.createRepairLog = async (req, res) => {
   const { carId, date, description, cost, service } = req.body;
@@ -30,6 +31,44 @@ exports.getRepairLogs = async (req, res) => {
     res.json(logs);
   } catch (error) {
     console.error("Error fetching repair logs:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.getAllRepairLogs = async (req, res) => {
+  console.log("Fetching all repair logs for user");
+  const authHeader = req.headers["authorization"];
+
+  let userId;
+  try {
+    userId = getCurrentUser(authHeader);
+    console.log("User ID:", userId);
+  } catch (error) {
+    return res.status(401).json({ error: "Unauthorized: " + error.message });
+  }
+
+  try {
+    // Găsim toate mașinile utilizatorului
+    const cars = await prisma.car.findMany({
+      where: { userId },
+      select: { id: true }
+    });
+
+    const carIds = cars.map(car => car.id);
+    console.log("Car IDs for user:", carIds);
+
+    // Găsim toate log-urile de reparații asociate acelor mașini
+    const logs = await prisma.repairLog.findMany({
+      where: {
+        carId: { in: carIds }
+      },
+      orderBy: { date: "desc" },
+      include: { car: true }
+    });
+
+    res.json(logs);
+  } catch (error) {
+    console.error("Error fetching repair logs for user:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
