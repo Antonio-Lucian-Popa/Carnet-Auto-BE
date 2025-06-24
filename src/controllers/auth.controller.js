@@ -128,6 +128,37 @@ exports.getCurrentUser = async (req, res) => {
   }
 };
 
+exports.updateAccount = async (req, res) => {
+  const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) {
+        return res.status(401).json({ message: "Token lipsă" });
+    }
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        const { name, email, password } = req.body;
+
+        // Verifică dacă email-ul este deja folosit de alt utilizator
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+        if (existingUser && existingUser.id !== userId) {
+            return res.status(400).json({ message: "Email deja folosit." });
+        }
+
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: { name, email, password },
+        });
+
+        res.json(updatedUser);
+    }
+    catch (error) {
+        console.error("Update account error:", error);
+        res.status(500).json({ message: "Eroare internă." });
+    }
+}
+
 exports.deleteAccount = async (req, res) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
