@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET || "jwtsecret123";
 
 exports.register = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, name, password } = req.body;
 
   try {
     // verifică dacă userul există deja
@@ -18,6 +18,7 @@ exports.register = async (req, res) => {
 
     const user = await prisma.user.create({
       data: {
+        name,
         email,
         password: hashedPassword,
       },
@@ -111,6 +112,7 @@ exports.getCurrentUser = async (req, res) => {
         id: true,
         email: true,
         createdAt: true,
+        name: true
         // poți adăuga mai multe câmpuri dacă ai nevoie
       },
     });
