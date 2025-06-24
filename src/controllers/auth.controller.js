@@ -173,7 +173,7 @@ exports.updatePassword = async (req, res) => {
 
         const user = await prisma.user.findUnique({ where: { id: userId } });
         if (!user || !user.password) {
-            return res.status(401).json({ message: "Date de autentificare incorecte." });
+            return res.status(403).json({ message: "Date de autentificare incorecte." });
         }
 
         const isMatch = await bcrypt.compare(oldPassword, user.password);
