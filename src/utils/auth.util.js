@@ -7,7 +7,9 @@ const getCurrentUser = (authHeader) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    return decoded.id || decoded.userId;
+
+    if (!decoded.userId) throw new Error("Token nu conține userId");
+    return decoded.userId;
   } catch (error) {
     throw new Error("Token invalid sau expirat");
   }

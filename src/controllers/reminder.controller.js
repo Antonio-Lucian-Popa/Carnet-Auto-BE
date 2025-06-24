@@ -19,6 +19,30 @@ exports.createReminder = async (req, res) => {
   }
 };
 
+exports.getRemindersForAllCars = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        // Find all cars for the user
+        const cars = await prisma.car.findMany({
+        where: { userId },
+        select: { id: true },
+        });
+
+        const carIds = cars.map(car => car.id);
+
+        // Fetch reminders for all cars
+        const reminders = await prisma.reminder.findMany({
+        where: { carId: { in: carIds } },
+        orderBy: { dueDate: "asc" },
+        });
+
+        res.json(reminders);
+    } catch (error) {
+        console.error("Error fetching reminders for all cars:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
 exports.getRemindersForCar = async (req, res) => {
   const { carId } = req.params;
   try {
