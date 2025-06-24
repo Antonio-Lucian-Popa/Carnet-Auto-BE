@@ -128,27 +128,30 @@ exports.getCurrentUser = async (req, res) => {
 
 exports.deleteAccount = async (req, res) => {
   const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    if (!token) {
-        return res.status(401).json({ message: "Token lipsă" });
-    }
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const userId = decoded.userId;
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "Token lipsă" });
+  }
 
-        // Șterge toate datele asociate cu utilizatorul
-        await prisma.reminder.deleteMany({ where: { userId } });
-        await prisma.repairLog.deleteMany({ where: { userId } });
-        await prisma.fuelLog.deleteMany({ where: { userId } });
-        await prisma.car.deleteMany({ where: { userId } });
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
 
-        // Șterge utilizatorul
-        await prisma.user.delete({ where: { id: userId } });
+    const carIds = await prisma.car.findMany({
+      where: { userId },
+      select: { id: true },
+    });
+    const ids = carIds.map((c) => c.id);
 
-        res.json({ message: "Cont șters cu succes." });
-    }
-    catch (error) {
-        console.error("Delete account error:", error);
-        res.status(500).json({ message: "Eroare internă." });
-    }
-}
+    await prisma.reminder.deleteMany({ where: { carId: { in: ids } } });
+    await prisma.repairLog.deleteMany({ where: { carId: { in: ids } } });
+    await prisma.fuelLog.deleteMany({ where: { carId: { in: ids } } });
+    await prisma.car.deleteMany({ where: { userId } });
+    await prisma.user.delete({ where: { id: userId } });
+
+    res.json({ message: "Cont șters cu succes." });
+  } catch (error) {
+    console.error("Delete account error:", error);
+    res.status(500).json({ message: "Eroare internă." });
+  }
+};
