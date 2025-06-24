@@ -138,7 +138,7 @@ exports.updateAccount = async (req, res) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         const userId = decoded.userId;
 
-        const { name, email, password } = req.body;
+        const { name, email } = req.body;
 
         // Verifică dacă email-ul este deja folosit de alt utilizator
         const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -148,7 +148,7 @@ exports.updateAccount = async (req, res) => {
 
         const updatedUser = await prisma.user.update({
             where: { id: userId },
-            data: { name, email, password },
+            data: { name, email },
         });
 
         res.json(updatedUser);
@@ -156,6 +156,43 @@ exports.updateAccount = async (req, res) => {
     catch (error) {
         console.error("Update account error:", error);
         res.status(500).json({ message: "Eroare internă." });
+    }
+}
+
+exports.updatePassword = async (req, res) => {
+  const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) {
+        return res.status(401).json({ message: "Token lipsă" });
+    }
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        const { oldPassword, newPassword } = req.body;
+
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user || !user.password) {
+            return res.status(401).json({ message: "Date de autentificare incorecte." });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Parolă greșită." });
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: { password: hashedNewPassword },
+        });
+
+        res.json({ message: "Parola actualizată cu succes." });
+    }
+    catch (error) {
+      console.error("Update password error:", error);
+      res.status(500).json({message: "Eroare internă."});
     }
 }
 

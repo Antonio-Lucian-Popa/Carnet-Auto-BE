@@ -28,6 +28,7 @@ router.get(
 
 router.get("/me", authController.getCurrentUser);
 router.put("/update", authController.updateAccount);
+router.put("/update-password", authController.updatePassword);
 router.delete("/delete", authController.deleteAccount);
 // În viitor: Google Auth
 // router.get("/google", passport.authenticate(...))
