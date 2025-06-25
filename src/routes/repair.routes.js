@@ -1,20 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middlewares/auth.middleware");
+const authenticate = require("../middlewares/auth.middleware");
 const repairController = require("../controllers/repair.controller");
 
-router.use(authMiddleware);
-
 // Creează un log de reparație
-router.post("/", repairController.createRepairLog);
+router.post("/", authenticate, repairController.createRepairLog);
 
 // Obține toate reparațiile pentru o mașină
-router.get("/:carId", repairController.getRepairLogs);
-
-// Șterge un log de reparație
-router.delete("/:id", repairController.deleteRepairLog);
+router.get("/:carId", authenticate, repairController.getRepairLogs);
 
 // Obține toate reparațiile pentru utilizator
-router.get("/all", repairController.getAllRepairLogs);
+router.get("/all", authenticate, repairController.getAllRepairLogs);
+
+// Șterge un log de reparație
+router.delete("/:id", authenticate, repairController.deleteRepairLog);
 
 module.exports = router;
