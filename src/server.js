@@ -17,4 +17,6 @@ async function main() {
   }
 }
 
-main();
+main().then(r => {
+    console.log("✅ Server started successfully");
+});

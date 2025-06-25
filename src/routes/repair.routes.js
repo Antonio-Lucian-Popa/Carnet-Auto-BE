@@ -10,7 +10,7 @@ router.post("/", authenticate, repairController.createRepairLog);
 router.get("/:carId", authenticate, repairController.getRepairLogs);
 
 // Obține toate reparațiile pentru utilizator
-router.get("/all", authenticate, repairController.getAllRepairLogs);
+router.get("/allRepairs", authenticate, repairController.getAllRepairLogs);
 
 // Șterge un log de reparație
 router.delete("/:id", authenticate, repairController.deleteRepairLog);
