@@ -18,7 +18,7 @@ const app = express();
 
 // ✅ 1. CORS trebuie pus primul
 app.use(cors({
-  origin: "http://localhost:5173", // nu folosi || aici!
+  origin: "https://685bbc199c5976bbdfa7f2a4--carlog.netlify.app", // nu folosi || aici!
   credentials: true,
 }));
 
@@ -36,8 +36,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      sameSite: "lax", // folosește "none" doar dacă ai HTTPS
-      secure: false,    // true doar dacă rulezi pe HTTPS
+      sameSite: "none", // folosește "none" doar dacă ai HTTPS
+      secure: true,    // true doar dacă rulezi pe HTTPS
     },
   })
 );
