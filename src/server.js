@@ -11,6 +11,7 @@ async function main() {
 
     app.listen(PORT, () => {
       console.log(`🚀 Server is running on http://localhost:${PORT}`);
+      require("./jobs/reminderNotifier");
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);
@@ -19,4 +20,10 @@ async function main() {
 
 main().then(r => {
     console.log("✅ Server started successfully");
+});
+
+process.on("SIGINT", async () => {
+  await prisma.$disconnect();
+  console.log("🛑 Prisma disconnected");
+  process.exit(0);
 });

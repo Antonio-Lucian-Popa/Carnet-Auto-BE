@@ -8,17 +8,18 @@ datasource db {
 }
 
 model User {
-  id        String            @id @default(uuid())
-  email     String            @unique
-  name      String
-  password  String? // null dacă vine de la Google
-  googleId  String?           @unique
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  cars      Car[]
-  fuelLogs  FuelLog[] // ✅ Adăugat pentru relație corectă
-  plan      SubscriptionPlan? @relation(fields: [planId], references: [id])
-  planId    String?
+  id            String            @id @default(uuid())
+  email         String            @unique
+  name          String
+  password      String? // null dacă vine de la Google
+  googleId      String?           @unique
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  cars          Car[]
+  fuelLogs      FuelLog[] // ✅ Adăugat pentru relație corectă
+  plan          SubscriptionPlan? @relation(fields: [planId], references: [id])
+  planId        String?
+  expoPushToken String?
 }
 
 model Car {

@@ -13,12 +13,13 @@ const repairRoutes = require("./routes/repair.routes");
 const reminderRoutes = require("./routes/reminder.routes");
 const subscriptionRoutes = require("./routes/subscription.routes");
 const stripeWebhook = require("./routes/stripe.webhook");
+const notificationRoutes = require("./routes/notification.routes");
 
 const app = express();
 
 // ✅ 1. CORS trebuie pus primul
 app.use(cors({
-  origin: "https://carlog.netlify.app", // nu folosi || aici!
+  origin: "http://localhost:5173", // nu folosi || aici!
   credentials: true,
 }));
 
@@ -52,6 +53,7 @@ app.use("/api/fuel", fuelRoutes);
 app.use("/api/repair", repairRoutes);
 app.use("/api/reminders", reminderRoutes);
 app.use("/api/subscription", subscriptionRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Test
 app.get("/", (req, res) => {
