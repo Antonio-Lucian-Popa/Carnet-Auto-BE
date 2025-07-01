@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const prisma = require("../utils/prisma");
+const prisma = require("../../prismaClient");
 
 router.post("/token", async (req, res) => {
     const { userId, token } = req.body;
