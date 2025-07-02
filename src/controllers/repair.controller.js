@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.createRepairLog = async (req, res) => {
-  const { carId, date, description, cost, service } = req.body;
+  const { carId, date, description, cost, odometer, service } = req.body;
   try {
     const repairLog = await prisma.repairLog.create({
       data: {
@@ -10,6 +10,7 @@ exports.createRepairLog = async (req, res) => {
         date: new Date(date),
         description,
         cost,
+        odometer,
         service,
       },
     });

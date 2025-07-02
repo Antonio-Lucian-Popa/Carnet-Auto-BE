@@ -57,6 +57,7 @@ model RepairLog {
   date        DateTime @default(now())
   description String
   cost        Float
+  odometer    Int?
   service     String?
 }
 
