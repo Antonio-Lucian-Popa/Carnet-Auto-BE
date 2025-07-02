@@ -78,10 +78,6 @@ exports.deleteFuelLog = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const existing = await prisma.fuelLog.findUnique({
-      where: { id },
-    });
-
     await prisma.fuelLog.delete({
       where: { id },
     });
