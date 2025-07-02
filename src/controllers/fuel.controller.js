@@ -76,16 +76,11 @@ exports.getAllFuelLogs = async (req, res) => {
 
 exports.deleteFuelLog = async (req, res) => {
   const { id } = req.params;
-  const userId = req.user.id;
 
   try {
     const existing = await prisma.fuelLog.findUnique({
       where: { id },
     });
-
-    if (!existing || existing.userId !== userId) {
-      return res.status(403).json({ error: "Not allowed" });
-    }
 
     await prisma.fuelLog.delete({
       where: { id },

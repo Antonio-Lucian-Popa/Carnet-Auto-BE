@@ -1,13 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middlewares/auth.middleware");
+const authenticate = require("../middlewares/auth.middleware");
 const fuelController = require("../controllers/fuel.controller");
 
-router.use(authMiddleware);
-
-router.post("/", fuelController.createFuelLog);
-router.get("/", fuelController.getAllFuelLogs);
-router.get("/:carId", fuelController.getFuelLogs);
-router.delete("/:id", fuelController.deleteFuelLog);
+router.post("/", authenticate, fuelController.createFuelLog);
+router.get("/", authenticate, fuelController.getAllFuelLogs);
+router.get("/:carId", authenticate, fuelController.getFuelLogs);
+router.delete("/:id", authenticate, fuelController.deleteFuelLog);
 
 module.exports = router;
