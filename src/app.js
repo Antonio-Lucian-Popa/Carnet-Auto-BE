@@ -19,7 +19,7 @@ const app = express();
 
 // ✅ 1. CORS trebuie pus primul
 app.use(cors({
-  origin: "http://localhost:5173", // nu folosi || aici!
+  origin: "https://carlog.netlify.app", // nu folosi || aici!
   credentials: true,
 }));
 
